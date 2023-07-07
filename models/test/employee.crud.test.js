@@ -1,11 +1,13 @@
+const { DB_URI } = require('../../const');
 const Employee = require('../employee.model');
+const Department = require('../department.model');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 
 describe('Employee', () => {
   before(async () => {
     try {
-      await mongoose.connect('mongodb://localhost:27017/companyDBtest', {
+      await mongoose.connect(DB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
@@ -124,6 +126,35 @@ describe('Employee', () => {
       await Employee.deleteMany();
       const employees = await Employee.find();
       expect(employees.length).to.be.equal(0);
+    });
+
+    afterEach(async () => {
+      await Employee.deleteMany();
+    });
+  });
+
+  describe('Populating data', () => {
+    beforeEach(async () => {
+      const testDepartmentOne = new Department({ _id: '5d9f1140f10a81216cfd4405', name: 'Marketing' });
+      await testDepartmentOne.save();
+
+      const testEmployeeOne = new Employee({
+        firstName: 'Amanda',
+        lastName: 'Doe',
+        department: '5d9f1140f10a81216cfd4405',
+      });
+      await testEmployeeOne.save();
+    });
+
+    it('should properly populate one document with "findOne" method', async () => {
+      const employee = await Employee.findOne({
+        firstName: 'Amanda',
+        lastName: 'Doe',
+        department: '5d9f1140f10a81216cfd4405',
+      }).populate('department');
+      expect(employee.department.name).to.be.equal('Marketing');
+      expect(employee.firstName).to.be.equal('Amanda');
+      expect(employee.lastName).to.be.equal('Doe');
     });
 
     afterEach(async () => {
