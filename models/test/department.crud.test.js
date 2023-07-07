@@ -1,3 +1,4 @@
+const { DB_URI } = require('../../const');
 const Department = require('../department.model');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
@@ -5,7 +6,7 @@ const mongoose = require('mongoose');
 describe('Department', () => {
   before(async () => {
     try {
-      await mongoose.connect('mongodb://localhost:27017/companyDBtest', {
+      await mongoose.connect(DB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
